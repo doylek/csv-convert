@@ -10,6 +10,7 @@
         padding: 20px;
         min-height: 80%;
         border: 2px solid gray;
+        box-shadow: 4px 4px 4px 1px rgba(0, 0, 0, 0.2);
     }
     #headerBar {
         padding: 10px;
@@ -63,7 +64,15 @@
         padding: 5px 10px;
         visibility: hidden;
     }
-
+    #brand {
+        position: absolute;
+        bottom: 3;
+        right: 3;
+        font-size: 13px;
+        color: #758881;
+        font-weight: 300;
+        font-family: monospace;
+    }
 </style>
 
 <div class="container">
@@ -78,7 +87,7 @@
     </div>
     <button data-copytarget="#code" id="copyButton">copy code</button>
 </div>
-
+<div id="brand">KMD.</div>
 <script>
     //var csv is the CSV file with headers
     function csvJSON(csv) {
