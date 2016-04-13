@@ -1,62 +1,218 @@
 <style>
-	#drop_zone {
-		border: 2px gray dashed;
-		padding: 50px;
-		color: gray;
-		font-size: 24px;
-		font-family: sans-serif;
-		width:400px;
-		margin: 20px auto 20px auto;
-		text-align: center;
-	}
-	#output p {
-		margin-left: 30px;
-	}
-	#outputTable {
-		
-	}
+    body {
+        background: repeating-linear-gradient( -45deg, #CDD3FE, #CDD3FE 10px, #B4BDFD 10px, #B4BDFD 20px);
+        background-attachment: fixed;
+        font-family: sans-serif;
+    }
+    
+    .container {
+        max-width: 1080px;
+        margin: 40px auto 40px auto;
+        background-color: white;
+        border-radius: 4px;
+        padding: 20px;
+        min-height: 80%;
+        border: 2px solid darkgray;
+    }
+    
+    #typePicker {
+        width: 230px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    #drop_zone {
+        border: 2px gray dashed;
+        padding: 50px;
+        color: gray;
+        font-size: 24px;
+        width: 400px;
+        margin: 20px auto 20px auto;
+        text-align: center;
+        border-radius: 4px;
+    }
+    
+    #outZone {
+        max-width: 950px;
+        margin: 10px auto 10px auto;
+    }
+    
+    #output p {
+        margin-left: 30px;
+    }
+    
+    #code {
+        background-color: #ddd;
+        border-radius: 4px;
+        font-family: monospace;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 40px 15px 30px 15px;
+    }
+    
+    #copyButton {
+        position: absolute;
+        top: 292;
+        left: 250;
+        border-radius: 4px;
+        background-color: white;
+        padding: 5px 10px;
+        visibility: hidden;
+    }
+
 </style>
 
-
-<div id="drop_zone">drop csv here</div>
-<output id="output"></output>
+<div class="container">
+    <form action="" id="typePicker">
+        <input type="radio" name="outType" value="HTMLtable" checked> HTML Table
+        <input type="radio" name="outType" value="JSONarray"> JSON array
+    </form>
+    <div id="drop_zone">drop csv here</div>
+    <div id="outZone">
+        <output id="output"></output>
+    </div>
+    <button data-copytarget="#code" id="copyButton">copy code</button>
+</div>
 
 <script>
+    //var csv is the CSV file with headers
+    function csvJSON(csv) {
+        var csv = csv.replace(/\r/g, ''),
+            lines = csv.split("\n"),
+            result = [],
+            headers = lines[0].split(",");
 
-  function handleFileSelect(evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
+        for (var i = 1; i < lines.length - 1; i++) {
+            var obj = {};
+            var currentline = lines[i].split(",");
+            for (var j = 0; j < headers.length; j++) {
+                obj[headers[j]] = currentline[j];
+            }
+            result.push(obj);
+        }
 
-    var files = evt.dataTransfer.files; // FileList object.
-		console.log(files)
-    // files is a FileList of File objects. List some properties.
-    var output = [];
-    for (var i = 0, f; f = files[i]; i++) {
-      output.push('<strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-                  f.size, ' bytes, last modified: ',
-                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a'
-                  );
+        //return result; //JavaScript object
+        return JSON.stringify(result); //JSON
     }
-    document.getElementById('output').innerHTML = '<p>' + output.join('') + '</p>';
-		
-		// create table from input
-		var reader = new FileReader();
-		reader.onload = function(e) {
-			console.log(this.result);
-		}
-		reader.readAsText(f)
-	}
+
+    function csvHTML(csv) {
+        var csv = csv.replace(/\r/g, ''),
+            lines = csv.split("\n"),
+            result = undefined,
+            headers = lines[0].split(",");
+
+        for (var i = 0; i < lines.length - 1; i++) {
+            var obj = undefined,
+                hobj = undefined;
+            var currentline = lines[i].split(",");
+            for (var j = 0; j < headers.length; j++) {
+                if (j === 0) {
+                    hobj = "<th>" + headers[j] + "</th>"
+                    obj = "<td>" + currentline[j] + "</td>"
+                } else {
+                    obj = obj + "<td>" + currentline[j] + "</td>"
+                    hobj = hobj + "<th>" + headers[j] + "</th>"
+                }
+            }
+            if (i === 0) {
+                result = "<tr>" + hobj + "</tr>";
+            } else {
+                result = result + "<tr>" + obj + "</tr>";
+            }
+        }
+        result = result.replace(/\"/g, '');
+        return result;
+    }
 
 
-  function handleDragOver(evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
-    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-  }
+    function handleFileSelect(evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
 
-  // Setup the dnd listeners.
-  var dropZone = document.getElementById('drop_zone');
-  dropZone.addEventListener('dragover', handleDragOver, false);
-  dropZone.addEventListener('drop', handleFileSelect, false);
-	
+        var radios = document.getElementsByName('outType');
+
+        for (var i = 0, length = radios.length; i < length; i++) {
+            if (radios[i].checked) {
+                // do whatever you want with the checked radio
+                var outSetting = radios[i].value;
+                // only one radio can be logically checked, don't check the rest
+                break;
+            }
+        }
+
+        var myfile = evt.dataTransfer.files[0]; // FileList object.
+            // myfiles is a FileList of File objects. List some properties.
+        var output = [];
+        output.push('<strong>', escape(myfile.name), '</strong> (', myfile.type || 'n/a', ') - ',
+            myfile.size, ' bytes, last modified: ',
+            myfile.lastModifiedDate ? myfile.lastModifiedDate.toLocaleDateString() : 'n/a'
+        );
+
+        document.getElementById('output').innerHTML = '<p>' + output.join('') + '</p>';
+
+        // create table from input
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            // get file content
+            var dat = e.target.result,
+                outputText = null,
+                outNode = document.createElement("div");
+
+            if (outSetting === "HTMLtable") {
+                outputText = csvHTML(dat)
+                var textnode = document.createTextNode(outputText)
+            } else {
+                outputText = csvJSON(dat)
+                var textnode = document.createTextNode(outputText);
+            }
+
+            outNode.id = "code"
+            outNode.appendChild(textnode)
+            document.getElementById('output').appendChild(outNode)
+        }
+        reader.readAsText(myfile)
+        
+        //document.getElementById("copyButton").style.visibility = "visible"
+    }
+
+
+
+    function handleDragOver(evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
+        evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    }
+
+    // Setup the dnd listeners.
+    var dropZone = document.getElementById('drop_zone');
+    dropZone.addEventListener('dragover', handleDragOver, false);
+    dropZone.addEventListener('drop', handleFileSelect, false);
+
+    /*(function() {
+        'use strict';
+        // click events
+        document.body.addEventListener('click', copy, true);
+        // event handler
+        function copy(e) {
+            // find target element
+            var
+                t = e.target,
+                c = t.dataset.copytarget,
+                inp = (c ? document.querySelector(c) : null);
+            // is element selectable?
+            if (inp && inp.select) {
+                // select text
+                inp.select();
+                try {
+                    // copy text
+                    document.execCommand('copy');
+                    inp.blur();
+                } catch (err) {
+                    alert('please press Ctrl/Cmd+C to copy');
+                }
+            }
+        }
+
+    })();*/
+
 </script>
