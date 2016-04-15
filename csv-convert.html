@@ -48,6 +48,8 @@
     }
 
     #code {
+        width: 100%;
+        resize: none;
         background-color: #ddd;
         font-family: monospace;
         margin-top: 20px;
@@ -170,19 +172,22 @@
             // get file content
             var dat = e.target.result,
                 outputText = null,
-                outNode = document.createElement("div");
+                outNode = document.createElement("textarea");
 
             if (outSetting === "HTMLtable") {
                 outputText = csvHTML(dat)
-                var textnode = document.createTextNode(outputText)
+                var textnode = document.createTextNode(outputText);
             } else {
                 outputText = csvJSON(dat)
                 var textnode = document.createTextNode(outputText);
             }
 
+            console.log(outputText)
             outNode.id = "code"
+            outNode.readOnly = "true"
             outNode.appendChild(textnode)
             document.getElementById('output').appendChild(outNode)
+            document.getElementById('code').style.height = document.getElementById('code').scrollHeight + 25
         }
         reader.readAsText(myfile)
 
