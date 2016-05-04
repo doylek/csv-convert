@@ -90,8 +90,8 @@
     </div>
 </div>
 <div id="brand">KMD.</div>
+
 <script>
-    //var csv is the CSV file with headers
     function csvJSON(csv) {
         var csv = csv.replace(/\r/g, ''),
             csv = csv.replace(/\"/g, '');
@@ -103,7 +103,7 @@
             var obj = {};
             var currentline = lines[i].split(",");
             for (var j = 0; j < headers.length; j++) {
-                if (  isNaN(Number(currentline[j])) ) {
+                if (  isNaN(currentline[j]) ) {
                     obj[headers[j]] = currentline[j];
                 } else {
                     obj[headers[j]] = Number(currentline[j]);
@@ -111,8 +111,6 @@
             }
             result.push(obj);
         }
-
-        //return result; //JavaScript object
         return JSON.stringify(result); //JSON
     }
 
@@ -156,15 +154,12 @@
 
         for (var i = 0, length = radios.length; i < length; i++) {
             if (radios[i].checked) {
-                // do whatever you want with the checked radio
                 var outSetting = radios[i].value;
-                // only one radio can be logically checked, don't check the rest
                 break;
             }
         }
 
-        var myfile = evt.dataTransfer.files[0]; // FileList object.
-            // myfiles is a FileList of File objects. List some properties.
+        var myfile = evt.dataTransfer.files[0];
         var output = [];
         output.push('<strong>', escape(myfile.name), '</strong> (', myfile.type || 'n/a', ') - ',
             myfile.size, ' bytes, last modified: ',
@@ -173,7 +168,6 @@
 
         document.getElementById('output').innerHTML = '<p>' + output.join('') + '</p>' + btncpy;
 
-        // create table from input
         var reader = new FileReader();
         reader.onload = function(e) {
             // get file content
@@ -188,8 +182,6 @@
                 outputText = csvJSON(dat)
                 var textnode = document.createTextNode(outputText);
             }
-
-            //console.log(outputText)
             outNode.id = "code"
             outNode.readOnly = "true"
             outNode.appendChild(textnode)
