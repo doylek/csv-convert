@@ -94,6 +94,7 @@
     //var csv is the CSV file with headers
     function csvJSON(csv) {
         var csv = csv.replace(/\r/g, ''),
+            csv = csv.replace(/\"/g, '');
             lines = csv.split("\n"),
             result = [],
             headers = lines[0].split(",");
@@ -102,7 +103,11 @@
             var obj = {};
             var currentline = lines[i].split(",");
             for (var j = 0; j < headers.length; j++) {
-                obj[headers[j]] = currentline[j];
+                if (  isNaN(Number(currentline[j])) ) {
+                    obj[headers[j]] = currentline[j];
+                } else {
+                    obj[headers[j]] = Number(currentline[j]);
+                }
             }
             result.push(obj);
         }
