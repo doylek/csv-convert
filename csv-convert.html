@@ -39,6 +39,7 @@
     }
 
     #outZone {
+        position: relative;
         max-width: 950px;
         margin: 10px auto 10px auto;
     }
@@ -60,11 +61,10 @@
 
     #copyButton {
         position: absolute;
-        top: 341;
-        left: 250;
+        top: 55;
+        right: 2;
         background-color: white;
         padding: 5px 10px;
-        visibility: hidden;
     }
     #brand {
         position: absolute;
@@ -85,9 +85,9 @@
     </form>
     <div id="drop_zone">drop csv here</div>
     <div id="outZone">
-        <output id="output"></output>
+        <output id="output">
+</output>
     </div>
-    <button data-copytarget="#code" id="copyButton">copy code</button>
 </div>
 <div id="brand">KMD.</div>
 <script>
@@ -131,11 +131,12 @@
                 }
             }
             if (i === 0) {
-                result = "<tr>" + hobj + "</tr>";
+                result = "<table><thead><tr>" + hobj + "</tr></thead><tbody>";
             } else {
                 result = result + "<tr>" + obj + "</tr>";
             }
         }
+        result = result + "</tbody></table>"
         result = result.replace(/\"/g, '');
         return result;
     }
@@ -145,7 +146,8 @@
         evt.stopPropagation();
         evt.preventDefault();
 
-        var radios = document.getElementsByName('outType');
+        var radios = document.getElementsByName('outType'),
+            btncpy = '<button data-copytarget="#code" id="copyButton">copy code</button>';
 
         for (var i = 0, length = radios.length; i < length; i++) {
             if (radios[i].checked) {
@@ -164,7 +166,7 @@
             myfile.lastModifiedDate ? myfile.lastModifiedDate.toLocaleDateString() : 'n/a'
         );
 
-        document.getElementById('output').innerHTML = '<p>' + output.join('') + '</p>';
+        document.getElementById('output').innerHTML = '<p>' + output.join('') + '</p>' + btncpy;
 
         // create table from input
         var reader = new FileReader();
@@ -182,7 +184,7 @@
                 var textnode = document.createTextNode(outputText);
             }
 
-            console.log(outputText)
+            //console.log(outputText)
             outNode.id = "code"
             outNode.readOnly = "true"
             outNode.appendChild(textnode)
@@ -191,7 +193,6 @@
         }
         reader.readAsText(myfile)
 
-        //document.getElementById("copyButton").style.visibility = "visible"
     }
 
 
@@ -207,7 +208,7 @@
     dropZone.addEventListener('dragover', handleDragOver, false);
     dropZone.addEventListener('drop', handleFileSelect, false);
 
-    /*(function() {
+    (function() {
         'use strict';
         // click events
         document.body.addEventListener('click', copy, true);
@@ -232,6 +233,6 @@
             }
         }
 
-    })();*/
+    })();
 
 </script>
